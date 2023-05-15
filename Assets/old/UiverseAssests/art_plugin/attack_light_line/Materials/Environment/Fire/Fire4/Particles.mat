@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: Particles
+  m_Shader: {fileID: 4800000, guid: e3b36c7226acbd34096371aea15f3d93, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: dd27607fe3bd52d4c84a5bd18e528fd5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _CoreStrength: 2.857143
+    - _CutOutLightCore: 0
+    - _InvFade: 1
+    - _TintStrength: 2.857143
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _CoreColor: {r: 1, g: 0.6360041, b: 0.45588237, a: 1}
+    - _TintColor: {r: 1, g: 0.49411768, b: 0, a: 0.49411765}

@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Particles
+  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 4000
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlphaTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DecalTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Illum:
+        m_Texture: {fileID: 2800000, guid: 0e26cb0081e8f4f48b00d2ac34ad388d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: d07625d586bf7a647a8c550a19bd8e5d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - PixelSnap: 0
+    - _BumpAmt: 0
+    - _CoreStrength: 1
+    - _CutOutLightCore: 0
+    - _Cutoff: 0.5
+    - _Emission: 1
+    - _EmissionLM: 0
+    - _EnableExternalAlpha: 0
+    - _FPOW: -1.88
+    - _InvFade: 3
+    - _Opacity: -0.03571428
+    - _R0: 0.05
+    - _Shininess: 0.01
+    - _TintStrength: 1
+    m_Colors:
+    - _Color: {r: 1, g: 0.45919842, b: 0.1102941, a: 1}
+    - _CoreColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Emission: {r: 0.85294116, g: 0.29999995, b: 0, a: 0}
+    - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _ReflectColor: {r: 1, g: 1, b: 1, a: 0.5}
+    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
+    - _RimColor: {r: 1, g: 1, b: 1, a: 0.5}
+    - _SpecColor: {r: 1, g: 1, b: 1, a: 0}
+    - _TintColor: {r: 0.9852941, g: 0.43923438, b: 0.08693774, a: 0.5176471}
+  m_BuildTextureStacks: []

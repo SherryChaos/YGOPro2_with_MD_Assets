@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Effect
+  - Fx
+  - Particle
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - fx_3d
+  - fx_2d
+  - ui_back_ground_2d
+  - ui_container_3d
+  - ui_main_3d
+  - ui_main_2d
+  - layer_12
+  - layer_13
+  - layer_14
+  - bird_cage
+  - card_data_manager
+  - mouse
+  - debug
+  - ui_windows_2d
+  - fx
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0

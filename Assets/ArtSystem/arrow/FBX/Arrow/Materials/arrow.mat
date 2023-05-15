@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: arrow
+  m_Shader: {fileID: 4800000, guid: ccd6a76dc5caed44e94efac7fc02e5ba, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Illum:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 0a4a878577c88654795d8c6aee74368d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _Alpha: 1
+    - _Cutoff: 0.8357143
+    - _EmissionLM: 0
+    - _Shininess: 0.093144186
+    - _ToGray: 0
+    m_Colors:
+    - _BlendColor: {r: 0, g: 1, b: 0.33793116, a: 1}
+    - _Color: {r: 0.9264706, g: 0, b: 0, a: 0.27450982}
+    - _SpecColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.26666668}

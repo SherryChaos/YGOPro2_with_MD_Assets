@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: WaterWave
+  m_Shader: {fileID: 4800000, guid: 121646934acd0044f99d218156d47198, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: 568ba7af0400e8d4c85404783ec04705, type: 3}
+        m_Scale: {x: 2, y: 2}
+        m_Offset: {x: 0, y: 0}
+    - _Cube:
+        m_Texture: {fileID: 8900000, guid: e20fe7ddd5bd687438b2ea6aac51b0b4, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _HeightMap:
+        m_Texture: {fileID: 2800000, guid: d3333d624ee596c48a94ad07ea1f95ee, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _BumpAmt: 3.5714285
+    - _CubeMapOpacity: 0
+    - _Cutoff: 0.26785713
+    - _FPOW: 4
+    - _Height: 0.30357152
+    - _OffsetHeightMap: 0
+    - _OffsetXHeightMap: 0
+    - _OffsetYHeightMap: 0.23214282
+    - _R0: 0.05
+    - _Shininess: 10.000001
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ReflectColor: {r: 0.23897058, g: 0.3493916, b: 0.47794116, a: 1}
+    - _RimColor: {r: 0.39705884, g: 0.5259635, b: 1, a: 0.5019608}
+    - _SpecColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}

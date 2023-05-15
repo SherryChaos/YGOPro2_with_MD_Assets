@@ -1,0 +1,464 @@
+stages:
+  - fetch_ocgcore
+  - ocgcore
+  - build_and_test
+  - pack
+  - deploy
+
+# If you are looking for a place where to add 'UNITY_LICENSE_FILE' and other secrets, please visit your project's gitlab page:
+# settings > CI/CD > Variables instead
+variables:
+  GIT_DEPTH: '1'
+  BUILD_NAME: YGOPro2
+  UNITY_ACTIVATION_FILE: ./unity3d.alf
+  UNITY_VERSION: "2021.1.18f1"
+  IMAGE: unityci/editor # https://hub.docker.com/r/unityci/editor
+  IMAGE_VERSION: "0.15" # https://github.com/game-ci/docker/releases
+  UNITY_DIR: $CI_PROJECT_DIR # this needs to be an absolute path. Defaults to the root of your tree.
+
+
+image: $IMAGE:$UNITY_VERSION-base-$IMAGE_VERSION
+
+.unity_before_script:
+  before_script:
+    - chmod +x ./ci/before_script.sh && ./ci/before_script.sh
+
+.cache:
+  cache:
+    key: "$CI_PROJECT_NAMESPACE-$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG-$TEST_PLATFORM"
+    paths:
+      - $UNITY_DIR/Library/
+
+.license:
+  rules:
+    - if: '$UNITY_LICENSE != null'
+      when: always
+
+.unity_defaults:
+  extends:
+    - .unity_before_script
+    - .cache
+    - .license
+
+.common_image:
+  image: git-registry.mycard.moe/mycard/docker-runner-base
+  tags:
+    - linux
+
+fetch_ocgcore:
+  extends: .common_image
+  stage: fetch_ocgcore
+  dependencies: []
+  script:
+    - cd AI_core_vs2017solution
+    # lua
+    - wget -O - https://cdn01.moecube.com/ygopro-build-materials/lua-5.3.5.tar.gz | tar zfx -
+    - mv lua-5.3.5/src lua
+    - rm -rf lua-5.3.5
+    # sqlite3
+    - wget -O - https://cdn01.moecube.com/ygopro-build-materials/sqlite-autoconf-3360000.tar.gz | tar zfx -
+    - mv sqlite-autoconf-3360000 sqlite3
+    # ocgcore
+    - git clone --depth=1 https://github.com/mycard/ygopro-core ocgcore
+    - cd ..
+  artifacts:
+    paths:
+      - AI_core_vs2017solution
+
+.ocgcore:
+  extends: .common_image
+  stage: ocgcore
+  dependencies:
+    - fetch_ocgcore
+  cache:
+    key: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+    paths:
+      - AI_core_vs2017solution/x64/Release
+      - AI_core_vs2017solution/Release
+      - AI_core_vs2017solution/bin
+      - AI_core_vs2017solution/obj
+
+.ocgcore_unix:
+  extends: .ocgcore
+  script:
+    - cd AI_core_vs2017solution/build/gmake.$GMAKE_PLATFORM/
+    - make config=release -j$(nproc)
+    - cd ../..
+    - cp -rf bin/gmake.$GMAKE_PLATFORM/$OUTPUT_PATH ../Assets/Plugins/$PLUGIN_PLATFORM/
+
+ocgcore_windows:
+  extends:
+    - .ocgcore
+  tags:
+    - vs
+  script:
+    - cd AI_core_vs2017solution
+    - bash -c 'cp -rf build/windows/* .'
+    - cmd /c '"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\msbuild.exe" core.sln /m /p:Configuration=Release /p:Platform=x86'
+    - cmd /c '"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\msbuild.exe" core.sln /m /p:Configuration=Release /p:Platform=x64'
+    - bash -c 'cp -rf Release/ocgcore.dll ../Assets/Plugins/x86/ ; cp -rf x64/Release/ocgcore.dll ../Assets/Plugins/x64/'
+  artifacts:
+    paths:
+      - Assets/Plugins/x86
+      - Assets/Plugins/x64
+
+ocgcore_linux:
+  extends:
+    - .ocgcore_unix
+  tags:
+    - linux
+  image: git-registry.mycard.moe/mycard/docker-runner-base:buster
+  before_script:
+    - apt update; apt -y install clang build-essential
+  variables:
+    GMAKE_PLATFORM: linux
+    PLUGIN_PLATFORM: Linux
+    OUTPUT_PATH: x64/*.so
+  artifacts:
+    paths:
+      - Assets/Plugins/Linux
+
+ocgcore_macos:
+  extends:
+    - .ocgcore_unix
+  tags:
+    - macos
+  variables:
+    GMAKE_PLATFORM: macos
+    PLUGIN_PLATFORM: MacOS
+    OUTPUT_PATH: '*.bundle'
+  artifacts:
+    paths:
+      - Assets/Plugins/MacOS
+
+.assets:
+  extends: .common_image
+  stage: build_and_test
+  dependencies: []
+  script: ./ci/assets-locale.sh
+  artifacts:
+    paths:
+      - cdb
+      - config
+      - deck
+      - puzzle
+      - picture
+      - script
+      - pack
+  only:
+    - master
+    - ci
+    - tags
+
+._locale_zh-CN:
+  variables:
+    TARGET_LOCALE: zh-CN
+
+._locale_en-US:
+  variables:
+    TARGET_LOCALE: en-US
+
+._platform_win32:
+  variables:
+    TARGET_PLATFORM: win32
+
+._platform_linux:
+  variables:
+    TARGET_PLATFORM: linux
+
+._platform_darwin:
+  variables:
+    TARGET_PLATFORM: darwin
+
+assets_zh-CN:
+  extends: 
+    - .assets
+    - ._locale_zh-CN
+
+assets_en-US:
+  extends: 
+    - .assets
+    - ._locale_en-US
+
+# run this job when you need to request a license
+# you may need to follow activation steps from documentation
+get-activation-file:
+  rules:
+    - if: '$UNITY_LICENSE == null'
+      when: manual
+  stage: build_and_test
+  script:
+    - chmod +x ./ci/get_activation_file.sh && ./ci/get_activation_file.sh
+  artifacts:
+    paths:
+      - $UNITY_ACTIVATION_FILE
+    expire_in: 10 min # Expiring this as artifacts may contain sensitive data and should not be kept public
+
+.test:
+  stage: build_and_test
+  extends: .unity_defaults
+  script:
+    - chmod +x ./ci/test.sh && ./ci/test.sh
+  artifacts:
+    when: always
+    expire_in: 2 weeks
+  # https://gitlab.com/gableroux/unity3d-gitlab-ci-example/-/issues/83
+  # you may need to remove or replace these to fit your need if you are using your own runners
+  tags:
+    - linux
+  coverage: /<Linecoverage>(.*?)</Linecoverage>/
+
+#test-playmode:
+#  extends: .test
+#  variables:
+#    TEST_PLATFORM: playmode
+
+#test-editmode:
+#  extends: .test
+#  variables:
+#    TEST_PLATFORM: editmode
+
+# uncomment the following blocks if you'd like to have junit reporting unity test results in gitlab
+# We currently have the following issue which prevents it from working right now, but you can give
+# a hand if you're interested in this feature:
+# https://gitlab.com/gableroux/unity3d-gitlab-ci-example/-/issues/151
+
+# .test-with-junit-reports: &test-with-junit-reports
+#   stage: build_and_test
+#   extends: .unity_defaults
+#   script:
+#     # This could be made faster by adding these packages to base image or running in a separate job (and step)
+#     # We could use an image with these two depencencies only and only do the saxonb-xslt command on
+#     # previous job's artifacts
+#     - apt-get update && apt-get install -y default-jre libsaxonb-java
+#     - chmod +x ./ci/test.sh && ./ci/test.sh
+#     - saxonb-xslt -s $UNITY_DIR/$TEST_PLATFORM-results.xml -xsl $CI_PROJECT_DIR/ci/nunit-transforms/nunit3-junit.xslt >$UNITY_DIR/$TEST_PLATFORM-junit-results.xml
+#   artifacts:
+#     when: always
+#     reports:
+#       junit:
+#         - $UNITY_DIR/$TEST_PLATFORM-junit-results.xml
+#         - $UNITY_DIR/$TEST_PLATFORM-coverage/
+#     expire_in: 2 weeks
+#   # https://gitlab.com/gableroux/unity3d-gitlab-ci-example/-/issues/83
+#   # you may need to remove or replace these to fit your need if you are using your own runners
+#   tags:
+#     - linux
+#   coverage: /<Linecoverage>(.*?)</Linecoverage>/
+
+# test-playmode-with-junit-reports:
+#   extends: .test-with-junit-reports
+#   variables:
+#     TEST_PLATFORM: playmode
+
+# test-editmode-with-junit-reports:
+#   extends: .test-with-junit-reports
+#   variables:
+#     TEST_PLATFORM: editmode
+
+.build:
+  stage: build_and_test
+  extends: .unity_defaults
+  script:
+    - chmod +x ./ci/build.sh && ./ci/build.sh
+  artifacts:
+    paths:
+      - $UNITY_DIR/Builds/
+  # https://gitlab.com/gableroux/unity3d-gitlab-ci-example/-/issues/83
+  # you may need to remove or replace these to fit your need if you are using your own runners
+  tags:
+    - linux
+
+build-StandaloneLinux64:
+  extends: .build
+  dependencies:
+    - ocgcore_linux
+  variables:
+    BUILD_TARGET: StandaloneLinux64
+
+#build-StandaloneLinux64-il2cpp:
+#  extends: .build
+#  image: $IMAGE:$UNITY_VERSION-linux-il2cpp-$IMAGE_VERSION
+#  variables:
+#    BUILD_TARGET: StandaloneLinux64
+#    SCRIPTING_BACKEND: IL2CPP
+
+build-StandaloneOSX:
+  extends: .build
+  dependencies:
+    - ocgcore_macos
+  image: $IMAGE:$UNITY_VERSION-mac-mono-$IMAGE_VERSION
+  variables:
+    BUILD_TARGET: StandaloneOSX
+
+#Note: build target names changed in recent versions, use this for versions < 2017.2:
+# build-StandaloneOSXUniversal:
+#   extends: .build
+#   variables:
+#     BUILD_TARGET: StandaloneOSXUniversal
+
+build-StandaloneWindows64:
+  extends: .build
+  dependencies:
+    - ocgcore_windows
+  image: $IMAGE:$UNITY_VERSION-windows-mono-$IMAGE_VERSION
+  variables:
+    BUILD_TARGET: StandaloneWindows64
+
+.pack:
+  extends: .common_image
+  stage: pack
+  script: ./ci/pack.sh
+  artifacts:
+    paths:
+      - dist
+  only:
+    - master
+    - ci
+    - tags
+
+pack_win32_zh-CN:
+  extends: 
+    - .pack
+    - ._locale_zh-CN
+    - ._platform_win32
+  dependencies:
+    - assets_zh-CN
+    - build-StandaloneWindows64
+
+pack_linux_zh-CN:
+  extends: 
+    - .pack
+    - ._locale_zh-CN
+    - ._platform_linux
+  dependencies:
+    - assets_zh-CN
+    - build-StandaloneLinux64
+
+pack_darwin_zh-CN:
+  extends: 
+    - .pack
+    - ._locale_zh-CN
+    - ._platform_darwin
+  dependencies:
+    - assets_zh-CN
+    - build-StandaloneOSX
+
+pack_win32_en-US:
+  extends: 
+    - .pack
+    - ._locale_en-US
+    - ._platform_win32
+  dependencies:
+    - assets_en-US
+    - build-StandaloneWindows64
+
+pack_linux_en-US:
+  extends: 
+    - .pack
+    - ._locale_en-US
+    - ._platform_linux
+  dependencies:
+    - assets_en-US
+    - build-StandaloneLinux64
+
+pack_darwin_en-US:
+  extends: 
+    - .pack
+    - ._locale_en-US
+    - ._platform_darwin
+  dependencies:
+    - assets_en-US
+    - build-StandaloneOSX
+
+upload:
+  extends:
+    - .common_image
+  stage: deploy
+  dependencies:
+    - pack_win32_zh-CN
+    - pack_linux_zh-CN
+    - pack_darwin_zh-CN
+    - pack_win32_en-US
+    - pack_linux_en-US
+    - pack_darwin_en-US
+  variables:
+    appVersion: $CI_COMMIT_TAG
+  script: ./ci/upload-packager.sh
+  only:
+    - tags
+
+# For webgl support, you need to set Compression Format to Disabled for v0.9. See https://github.com/game-ci/docker/issues/75
+#build-WebGL:
+#  extends: .build
+#  image: $IMAGE:$UNITY_VERSION-webgl-$IMAGE_VERSION
+  # Temporary workaround for https://github.com/game-ci/docker/releases/tag/v0.9 and webgl support in current project to prevent errors with missing ffmpeg
+#  before_script:
+#    - chmod +x ./ci/before_script.sh && ./ci/before_script.sh
+#    - apt-get update && apt-get install ffmpeg -y
+#  variables:
+#    BUILD_TARGET: WebGL
+
+#build-android:
+#  extends: .build
+#  image: $IMAGE:$UNITY_VERSION-android-$IMAGE_VERSION
+#  variables:
+#    BUILD_TARGET: Android
+#    BUNDLE_VERSION_CODE: $CI_PIPELINE_IID
+#    BUILD_APP_BUNDLE: "false"
+
+#build-android-il2cpp:
+#  extends: .build
+#  image: $IMAGE:$UNITY_VERSION-android-$IMAGE_VERSION
+#  variables:
+#    BUILD_TARGET: Android
+#    BUNDLE_VERSION_CODE: $CI_PIPELINE_IID
+#    BUILD_APP_BUNDLE: "false"
+#    SCRIPTING_BACKEND: IL2CPP
+
+#deploy-android:
+#  stage: deploy
+#  image: ruby
+#  script:
+#    - cd $UNITY_DIR/Builds/Android
+#    - echo $GPC_TOKEN > gpc_token.json
+#    - gem install bundler
+#    - bundle install
+#    - fastlane supply --aab $BUILD_NAME.aab --track internal --package_name com.youcompany.yourgame --json_key ./gpc_token.json
+#  needs: ["build-android"]
+
+#build-ios-xcode:
+#  extends: .build
+#  image: $IMAGE:$UNITY_VERSION-ios-$IMAGE_VERSION
+#  variables:
+#    BUILD_TARGET: iOS
+
+#build-and-deploy-ios:
+#  stage: deploy
+#  script:
+#    - cd $UNITY_DIR/Builds/iOS/$BUILD_NAME
+#    - pod install
+#    - fastlane ios beta
+#  tags:
+#    - ios
+#    - mac
+#  needs: ["build-ios-xcode"]
+
+#pages:
+#  image: alpine:latest
+#  stage: deploy
+#  script:
+#    - mv "$UNITY_DIR/Builds/WebGL/${BUILD_NAME}" public
+#  artifacts:
+#    paths:
+#      - public
+#  only:
+#   - master
+
+#workflow:
+#  rules:
+#    - if: $CI_MERGE_REQUEST_ID
+#      when: never
+#    - if: $CI_COMMIT_TAG
+#      when: never
+#    - when: always

@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: WaterLowPoly
+  m_Shader: {fileID: 4800000, guid: 121646934acd0044f99d218156d47198, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: 568ba7af0400e8d4c85404783ec04705, type: 3}
+        m_Scale: {x: 2, y: 2}
+        m_Offset: {x: 0, y: 0}
+    - _Cube:
+        m_Texture: {fileID: 8900000, guid: e20fe7ddd5bd687438b2ea6aac51b0b4, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _HeightMap:
+        m_Texture: {fileID: 2800000, guid: 240b54749f7dab7408447af74beb6195, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _BumpAmt: 20
+    - _CubeMapOpacity: 0.08928572
+    - _Cutoff: 0.32142857
+    - _FPOW: 2
+    - _Height: 0.24999999
+    - _OffsetHeightMap: 1
+    - _OffsetXHeightMap: 0
+    - _OffsetYHeightMap: 0.035714287
+    - _R0: 0.05
+    - _Shininess: 10.000001
+    m_Colors:
+    - _Color: {r: 0.9632353, g: 0.97565925, b: 1, a: 1}
+    - _ReflectColor: {r: 0.44766438, g: 0.47030485, b: 0.50735295, a: 1}
+    - _RimColor: {r: 0.49264705, g: 0.5801218, b: 1, a: 1}
+    - _SpecColor: {r: 0.8014706, g: 0.8603448, b: 1, a: 1}
